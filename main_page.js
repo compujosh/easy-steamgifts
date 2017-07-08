@@ -8,6 +8,8 @@ var nextPage = currentPage + 1;
 $(document).on('game_list_complete', updateStorage);
 // Ensure initial call succeeds
 $(document).ready(updateStorage);
+
+// AjaxStop solution to autoload issue... probably worse
 /*$(document).ajaxStop(function(){
     console.log("ajaxStop");
     updateStorage();
@@ -136,6 +138,7 @@ function getDlcList() {
         }
     }
 
+    // $.when solution to autoload issue
     console.log("deffereds: "+deffereds.length);
     if (deffereds.length > 0) {
         $.when(deffereds).done(function(){
