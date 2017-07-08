@@ -8,6 +8,10 @@ var nextPage = currentPage + 1;
 $(document).on('game_list_complete', updateStorage);
 // Ensure initial call succeeds
 $(document).ready(updateStorage);
+/*$(document).ajaxStop(function(){
+    console.log("ajaxStop");
+    updateStorage();
+});*/
 
 chrome.storage.sync.set({'steam_gift_user': sg.user});
 
@@ -119,6 +123,7 @@ function sgRun() {
 
 function getDlcList() {
     dlcCheckIteration = 0;
+    deffereds = []
 
     for (var i in sg.games) {
         if (sg.games[i].data.appId === null || sg.games[i].data.image === null) {
@@ -129,6 +134,13 @@ function getDlcList() {
         } else {
             checkIfGameIsDlc(i);
         }
+    }
+
+    console.log("deffereds: "+deffereds.length);
+    if (deffereds.length > 0) {
+        $.when(deffereds).done(function(){
+            $(document).trigger('game_list_complete');
+        });
     }
 }
 
@@ -157,6 +169,7 @@ function checkIfGameIsDlc(i) {
             reader.readAsDataURL(dlc_file);
         });
         xhr.send();
+        deffereds += dlc;
     } else {
         sg.games[i].data.isDlc = sg.storage.games[foundResult.i].data.isDlc;
         sg.games[i].data.base64 = sg.storage.games[foundResult.i].data.base64;
