@@ -9,6 +9,12 @@ $(document).on('game_list_complete', updateStorage);
 // Ensure initial call succeeds
 $(document).ready(updateStorage);
 
+// AjaxStop solution to autoload issue... probably worse
+/*$(document).ajaxStop(function(){
+    console.log("ajaxStop");
+    updateStorage();
+});*/
+
 chrome.storage.sync.set({'steam_gift_user': sg.user});
 
 /* START */
@@ -119,6 +125,7 @@ function sgRun() {
 
 function getDlcList() {
     dlcCheckIteration = 0;
+    deffereds = []
 
     for (var i in sg.games) {
         if (sg.games[i].data.appId === null || sg.games[i].data.image === null) {
@@ -129,6 +136,14 @@ function getDlcList() {
         } else {
             checkIfGameIsDlc(i);
         }
+    }
+
+    // $.when solution to autoload issue
+    console.log("deffereds: "+deffereds.length);
+    if (deffereds.length > 0) {
+        $.when(deffereds).done(function(){
+            $(document).trigger('game_list_complete');
+        });
     }
 }
 
@@ -157,6 +172,7 @@ function checkIfGameIsDlc(i) {
             reader.readAsDataURL(dlc_file);
         });
         xhr.send();
+        deffereds += dlc;
     } else {
         sg.games[i].data.isDlc = sg.storage.games[foundResult.i].data.isDlc;
         sg.games[i].data.base64 = sg.storage.games[foundResult.i].data.base64;
